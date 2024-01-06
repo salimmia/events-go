@@ -13,9 +13,10 @@ import (
 )
 
 func main() {
-	server := gin.Default()
 	db.InitDB()
 
+	server := gin.Default()
+	
 	err := godotenv.Load()
 
 	if err != nil{
