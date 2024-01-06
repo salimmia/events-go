@@ -39,4 +39,24 @@ func InitDB(){
       	DB = db
       	fmt.Println("Successfully connected to database!")
 	}
+
+	createTables()
+}
+
+func createTables(){
+	createEventTables := `
+		CREATE TABLE IF NOT EXISTS events(
+			id BIGSERIAL PRIMARY KEY,
+			name varchar(100) NOT NULL,
+			description varchar(1000) NOT NULL,
+			location varchar(50) NOT NULL,
+			user_id BIGINT
+		);
+	`
+
+	_, err := DB.Exec(createEventTables)
+
+	if err != nil{
+		panic("Could not create event table.")
+	}
 }
