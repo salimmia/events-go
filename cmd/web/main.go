@@ -4,14 +4,17 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/salimmia/events-go/db"
 	"github.com/salimmia/events-go/models"
 )
 
 func main() {
 	server := gin.Default()
+	db.InitDB()
 
 	err := godotenv.Load()
 
@@ -50,6 +53,8 @@ func createEvent(context *gin.Context){
 
 	event.ID = 1
 	event.UserId = 1;
+
+	event.DateTime = time.Now()
 
 	event.Save()
 
