@@ -38,7 +38,7 @@ func InitDB(){
       	panic(err)
    	}else {
       	DB = db
-      	fmt.Println("Successfully connected to database!")
+      	log.Println("Successfully connected to database!")
 	}
 
 	createTables()
