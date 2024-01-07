@@ -119,6 +119,22 @@ func GetEventById(id int64) (*Event, error){
 	return &event, nil
 }
 
+func (event *Event) UpdateEvent() error{
+	sql := `
+		UPDATE events
+		SET name = $1, description = $2, location = $3, date_time = $4
+		WHERE id = $5;
+	`
+
+	stmt, err := db.DB.Prepare(sql)
+	if err != nil{
+		return err
+	}
+
+	_, err = stmt.Exec(event.Name, event.Description, event.Location, event.DateTime, event.ID)
+	return err
+}
+
 func (event *Event) DeleteEvent() error{
 	sql := `
 		DELETE FROM events
