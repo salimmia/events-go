@@ -2,6 +2,7 @@ package models
 
 import (
 	"github.com/salimmia/events-go/db"
+	"github.com/salimmia/events-go/utils"
 )
 
 type User struct{
@@ -19,8 +20,13 @@ func (u *User) Save() error{
 		RETURNING id;
 	`
 
+	hashedPassword, err := utils.HashPassword(u.Password)
+	if err != nil{
+		return err
+	}
+
 	var id int64
-	err := db.DB.QueryRow(sql, u.Email, u.Password).Scan(&id)
+	err = db.DB.QueryRow(sql, u.Email, hashedPassword).Scan(&id)
 	if err != nil{
 		return err
 	}
