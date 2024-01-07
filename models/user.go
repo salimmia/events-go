@@ -1,6 +1,8 @@
 package models
 
 import (
+	"errors"
+
 	"github.com/salimmia/events-go/db"
 	"github.com/salimmia/events-go/utils"
 )
@@ -77,4 +79,19 @@ func GetUserByEmail(email string) (*User, error){
 	}
 
 	return &user, nil
+}
+
+func (user *User) ValidateCredentials()  error{
+	email := user.Email
+
+	findUser, err := GetUserByEmail(email)
+
+	if err != nil{
+		return errors.New("Invalid email")
+	}
+
+	if !utils.CheckPasswordHash(user.Password, findUser.Password){
+		return errors.New("Invalid password")
+	}
+	return nil
 }

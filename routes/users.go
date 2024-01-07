@@ -29,3 +29,22 @@ func SingUp(context *gin.Context){
 
 	context.JSON(http.StatusCreated, gin.H{"message" : "Successfully Registered", "user": user})
 }
+
+func LogIn(context *gin.Context){
+	var user models.User
+	err := context.ShouldBindJSON(&user)
+	if err != nil{
+		context.JSON(http.StatusInternalServerError, gin.H{"message" : "Could not fetch user login info."})
+		return
+	}
+
+	err = user.ValidateCredentials()
+	// log.Println(err)
+
+	if err != nil{
+		context.JSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{"message" : "Successfully logged In"})
+}
