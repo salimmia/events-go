@@ -118,3 +118,18 @@ func GetEventById(id int64) (*Event, error){
 
 	return &event, nil
 }
+
+func (event *Event) DeleteEvent() error{
+	sql := `
+		DELETE FROM events
+		WHERE id = $1;
+	`
+
+	stmt, err := db.DB.Prepare(sql)
+	if err != nil{
+		return err
+	}
+
+	_, err = stmt.Exec(event.ID)
+	return err
+}
