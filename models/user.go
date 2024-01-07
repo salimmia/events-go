@@ -93,5 +93,7 @@ func (user *User) ValidateCredentials()  error{
 	if !utils.CheckPasswordHash(user.Password, findUser.Password){
 		return errors.New("Invalid password")
 	}
+	user.ID = findUser.ID
+	
 	return nil
 }

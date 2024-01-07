@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/salimmia/events-go/models"
+	"github.com/salimmia/events-go/utils"
 )
 
 func SingUp(context *gin.Context){
@@ -46,5 +47,12 @@ func LogIn(context *gin.Context){
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"message" : "Successfully logged In"})
+	token, err := utils.GenerateToken(user.Email, user.ID)
+
+	if err != nil{
+		context.JSON(http.StatusInternalServerError, gin.H{"message" : "Could not generate jwt token"})
+		return
+	}
+
+	context.JSON(http.StatusOK, gin.H{"message" : "Successfully logged In", "token" : token})
 }
