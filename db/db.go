@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 
+	// _ "github.com/go-pg/pg/v10"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
