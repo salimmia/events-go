@@ -45,6 +45,19 @@ func InitDB(){
 }
 
 func createTables(){
+	createUsersTable := `
+		CREATE TABLE IF NOT EXISTS users(
+			id BIGSERIAL NOT NULL PRIMARY KEY,
+			email VARCHAR(100) NOT NULL UNIQUE,
+			password VARCHAR(500) NOT NULL
+		);
+	`
+	
+	_, err := DB.Exec(createUsersTable)
+	if err != nil{
+		panic("Could not create users table.")
+	}
+
 	createEventTables := `
 		CREATE TABLE IF NOT EXISTS events(
 			id BIGSERIAL PRIMARY KEY,
@@ -52,12 +65,12 @@ func createTables(){
 			description varchar(1000) NOT NULL,
 			location varchar(50) NOT NULL,
 			date_time TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-			user_id BIGINT
+			user_id BIGINT,
+			FOREIGN KEY(user_id) REFERENCES users(id)
 		);
 	`
 
-	_, err := DB.Exec(createEventTables)
-
+	_, err = DB.Exec(createEventTables)
 	if err != nil{
 		panic("Could not create event table.")
 	}
