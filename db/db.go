@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 
+	// _ "github.com/go-pg/pg/v10"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
@@ -50,6 +51,7 @@ func createTables(){
 			name varchar(100) NOT NULL,
 			description varchar(1000) NOT NULL,
 			location varchar(50) NOT NULL,
+			date_time TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
 			user_id BIGINT
 		);
 	`
