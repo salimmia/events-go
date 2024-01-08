@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/salimmia/events-go/models"
+	"github.com/salimmia/events-go/utils"
 )
 
 func getEvent(context *gin.Context){
@@ -37,16 +38,30 @@ func getEvents(context *gin.Context){
 }
 
 func createEvent(context *gin.Context){
+	token := context.Request.Header.Get("Authorization")
+
+	if token == "" {
+		context.JSON(http.StatusUnauthorized, gin.H{"message" : "Not authorized"})
+		return
+	}
+
+	userId, err := utils.VerifyToken(token)
+	log.Println(userId)
+	if err != nil {
+		context.JSON(http.StatusUnauthorized, gin.H{"message" : "Unauthorized.", "error" : err.Error()})
+		return
+	}
+
 	event := models.Event{}
 
-	err := context.ShouldBindJSON(&event)
+	err = context.ShouldBindJSON(&event)
 	if err != nil{
 		context.JSON(http.StatusBadRequest, gin.H{"message" : "don't create any event"})
 		return
 	}
 	
 	event.DateTime = time.Now()
-	event.UserId = 1
+	event.UserId = userId
 
 	err = event.Save()
 	if err != nil{
