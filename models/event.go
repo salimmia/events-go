@@ -1,6 +1,8 @@
 package models
 
 import (
+	"errors"
+	"log"
 	"time"
 
 	"github.com/salimmia/events-go/db"
@@ -128,4 +130,47 @@ func (event *Event) DeleteEvent() error{
 
 	_, err = stmt.Exec(event.ID)
 	return err
+}
+
+func (e *Event) Register(userId int64) (int64, error) {
+
+	query := `
+		SELECT COUNT(*) FROM registrations
+		WHERE event_id = $1 AND user_id = $2;
+	`
+
+	row, err := db.DB.Query(query, e.ID, userId)
+
+	if err != nil{
+		return 0, errors.New("Error executing query")
+	}
+	defer row.Close()
+
+	var count int
+
+if row.Next() {
+    if err := row.Scan(&count); err != nil {
+        log.Println("Error scanning result", err)
+        return 0, err
+    }
+}
+
+if count > 0 {
+    return -1, errors.New("Already Registered!")
+}
+
+	query = `
+		INSERT INTO registrations (event_id, user_id)
+		VALUES ($1, $2)
+		RETURNING ID;
+	`
+
+	var id int64
+	err = db.DB.QueryRow(query, e.ID, userId).Scan(&id)
+
+	if err != nil{
+		return 0, err
+	}
+
+	return id, nil
 }

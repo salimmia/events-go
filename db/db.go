@@ -7,7 +7,6 @@ import (
 	"os"
 	"strconv"
 
-	// _ "github.com/go-pg/pg/v10"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
@@ -58,7 +57,7 @@ func createTables(){
 		panic("Could not create users table.")
 	}
 
-	createEventTables := `
+	createEventTable := `
 		CREATE TABLE IF NOT EXISTS events(
 			id BIGSERIAL PRIMARY KEY,
 			name varchar(100) NOT NULL,
@@ -70,8 +69,23 @@ func createTables(){
 		);
 	`
 
-	_, err = DB.Exec(createEventTables)
+	_, err = DB.Exec(createEventTable)
 	if err != nil{
 		panic("Could not create event table.")
+	}
+
+	createRegistrationTable := `
+		CREATE TABLE IF NOT EXISTS registrations(
+			id BIGSERIAL PRIMARY KEY,
+			event_id BIGINT NOT NULL,
+			user_id BIGINT NOT NULL,
+			FOREIGN KEY(event_id) REFERENCES events(id),
+			FOREIGN KEY(user_id) REFERENCES users(id)
+		);
+	`
+
+	_, err = DB.Exec(createRegistrationTable)
+	if err != nil{
+		panic("Could not create Regestration table.")
 	}
 }
