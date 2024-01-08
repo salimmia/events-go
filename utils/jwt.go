@@ -30,9 +30,6 @@ func VerifyToken(token string) (int64, error) {
 
 		return []byte(secretKey), nil
 	})
-
-	// log.Println(parsedToken)
-
 	if err != nil {
 		return 0, errors.New("Could not parse token")
 	}

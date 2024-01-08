@@ -19,6 +19,7 @@ func InitDB(){
 
 	if err != nil{
 		log.Println("Error is occurred  on .env file please check")
+		return
 	}
 
 	host := os.Getenv("DB_HOST")
@@ -27,7 +28,6 @@ func InitDB(){
    	dbname := os.Getenv("DB_NAME")
 	password := os.Getenv("DB_PASSWORD")
 
-	log.Println(user, password, host, port, dbname)
 	dsn := fmt.Sprintf("postgresql://%v:%v@%v:%v/%v?sslmode=disable", user, password, host, port, dbname)
 
    	db, errSql := sql.Open("postgres", dsn)
@@ -37,7 +37,7 @@ func InitDB(){
       	panic(err)
    	}else {
       	DB = db
-      	log.Println("Successfully connected to database!")
+      	log.Println("Connected to the Database!!!")
 	}
 
 	createTables()

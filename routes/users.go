@@ -40,15 +40,12 @@ func LogIn(context *gin.Context){
 	}
 
 	err = user.ValidateCredentials()
-	// log.Println(err)
-
 	if err != nil{
 		context.JSON(http.StatusUnauthorized, gin.H{"message": err.Error()})
 		return
 	}
 
 	token, err := utils.GenerateToken(user.Email, user.ID)
-
 	if err != nil{
 		context.JSON(http.StatusInternalServerError, gin.H{"message" : "Could not generate jwt token"})
 		return
