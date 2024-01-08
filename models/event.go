@@ -2,7 +2,6 @@ package models
 
 import (
 	"errors"
-	"log"
 	"time"
 
 	"github.com/salimmia/events-go/db"
@@ -133,7 +132,23 @@ func (event *Event) DeleteEvent() error{
 }
 
 func (e *Event) Register(userId int64) (int64, error) {
+	query := `
+		INSERT INTO registrations (event_id, user_id)
+		VALUES ($1, $2)
+		RETURNING ID;
+	`
 
+	var id int64
+	err := db.DB.QueryRow(query, e.ID, userId).Scan(&id)
+
+	if err != nil{
+		return 0, err
+	}
+
+	return id, nil
+}
+
+func (e *Event) IsAlreadyRegistered(userId int64) (bool, error){
 	query := `
 		SELECT COUNT(*) FROM registrations
 		WHERE event_id = $1 AND user_id = $2;
@@ -142,35 +157,41 @@ func (e *Event) Register(userId int64) (int64, error) {
 	row, err := db.DB.Query(query, e.ID, userId)
 
 	if err != nil{
-		return 0, errors.New("Error executing query")
+		return false, errors.New("Error executing query")
 	}
 	defer row.Close()
 
 	var count int
 
-if row.Next() {
-    if err := row.Scan(&count); err != nil {
-        log.Println("Error scanning result", err)
-        return 0, err
-    }
-}
-
-if count > 0 {
-    return -1, errors.New("Already Registered!")
-}
-
-	query = `
-		INSERT INTO registrations (event_id, user_id)
-		VALUES ($1, $2)
-		RETURNING ID;
-	`
-
-	var id int64
-	err = db.DB.QueryRow(query, e.ID, userId).Scan(&id)
-
-	if err != nil{
-		return 0, err
+	if row.Next() {
+		if err := row.Scan(&count); err != nil {
+			return false, errors.New("Error scanning result")
+		}
 	}
 
-	return id, nil
+	if count > 0 {
+		return true, errors.New("Already Registered!")
+	}
+
+	return false, nil
+}
+
+func (e *Event) CancelRegistration(userId int64) error {
+	query := `
+		DELETE FROM registrations 
+		WHERE event_id = $1 AND user_id = $2;
+	`
+	stmt, err := db.DB.Prepare(query)
+
+	if err != nil{
+		return err
+	}
+	
+	_, err = stmt.Exec(e.ID, userId)
+
+	if err != nil{
+		return err
+	}
+
+	return nil
 }
