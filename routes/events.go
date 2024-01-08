@@ -1,14 +1,12 @@
 package routes
 
 import (
-	"log"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/salimmia/events-go/models"
-	"github.com/salimmia/events-go/utils"
 )
 
 func getEvent(context *gin.Context){
@@ -30,7 +28,7 @@ func getEvent(context *gin.Context){
 func getEvents(context *gin.Context){
 	events, err := models.GetEvents()
 	if err != nil{
-		log.Println(err)
+		context.JSON(http.StatusBadRequest, gin.H{"message" : err.Error()})
 		return
 	}
 
@@ -38,34 +36,22 @@ func getEvents(context *gin.Context){
 }
 
 func createEvent(context *gin.Context){
-	token := context.Request.Header.Get("Authorization")
-
-	if token == "" {
-		context.JSON(http.StatusUnauthorized, gin.H{"message" : "Not authorized"})
-		return
-	}
-
-	userId, err := utils.VerifyToken(token)
-	log.Println(userId)
-	if err != nil {
-		context.JSON(http.StatusUnauthorized, gin.H{"message" : "Unauthorized.", "error" : err.Error()})
-		return
-	}
-
 	event := models.Event{}
 
-	err = context.ShouldBindJSON(&event)
+	err := context.ShouldBindJSON(&event)
 	if err != nil{
 		context.JSON(http.StatusBadRequest, gin.H{"message" : "don't create any event"})
 		return
 	}
+
+	userId := context.GetInt64("user_id")
 	
 	event.DateTime = time.Now()
 	event.UserId = userId
 
 	err = event.Save()
 	if err != nil{
-		log.Println("error  ", err)
+		context.JSON(http.StatusBadRequest, gin.H{"message" : err.Error()})
 		return
 	}
 
@@ -79,9 +65,16 @@ func UpdateEvent(context *gin.Context){
 		return
 	}
 
-	_, err = models.GetEventById(eventId)
+	userId := context.GetInt64("user_id")
+	
+	event, err := models.GetEventById(eventId)
 	if err != nil{
 		context.JSON(http.StatusBadRequest, gin.H{"message" : "Could not parse event id."})
+		return
+	}
+
+	if event.UserId != userId {
+		context.JSON(http.StatusUnauthorized, gin.H{"message" : "Not authorized for update this event!"})
 		return
 	}
 
@@ -109,9 +102,15 @@ func DeleteEvent(context *gin.Context){
 		return
 	}
 
+	userId := context.GetInt64("user_id")
 	event, err := models.GetEventById(eventId)
 	if err != nil{
 		context.JSON(http.StatusBadRequest, gin.H{"message" : "Could not parse event id."})
+		return
+	}
+
+	if event.UserId != userId {
+		context.JSON(http.StatusUnauthorized, gin.H{"message" : "Not authorized for deltete this event!"})
 		return
 	}
 

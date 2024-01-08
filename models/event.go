@@ -1,7 +1,6 @@
 package models
 
 import (
-	"log"
 	"time"
 
 	"github.com/salimmia/events-go/db"
@@ -24,7 +23,6 @@ func (e *Event) Save() error{
 		VALUES($1, $2, $3, $4, $5)
 		RETURNING id;
 	`
-
 	var id int64
 
 	err := db.DB.QueryRow(sql, e.Name, e.Description, e.Location, e.DateTime, e.UserId).Scan(&id)
@@ -32,8 +30,6 @@ func (e *Event) Save() error{
 	if err != nil{
 		return err
 	}
-
-	log.Println(id)
 
 	e.ID = id
 	
@@ -79,8 +75,6 @@ func GetEvents() ([]Event, error){
 
 func GetEventById(id int64) (*Event, error){
 	var event Event
-
-	// log.Println(id)
 
 	query := `
 		SELECT id, name, description, location, date_time, user_id FROM events
