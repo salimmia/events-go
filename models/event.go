@@ -25,14 +25,6 @@ func (e *Event) Save() error{
 		RETURNING id;
 	`
 
-	// stmt, err := db.DB.Prepare(sql)
-
-	// if err != nil{
-	// 	return err
-	// }
-
-	// result, err := stmt.Exec(e.Name, e.Description, e.Location, e.DateTime, e.UserId)
-
 	var id int64
 
 	err := db.DB.QueryRow(sql, e.Name, e.Description, e.Location, e.DateTime, e.UserId).Scan(&id)
@@ -40,12 +32,6 @@ func (e *Event) Save() error{
 	if err != nil{
 		return err
 	}
-
-	// id, err = result.LastInsertId()
-
-	// if err != nil{
-	// 	panic(err)
-	// }
 
 	log.Println(id)
 
