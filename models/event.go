@@ -1,7 +1,6 @@
 package models
 
 import (
-	"log"
 	"time"
 
 	"github.com/salimmia/events-go/db"
@@ -46,8 +45,6 @@ func (e *Event) Save() error{
 	// if err != nil{
 	// 	panic(err)
 	// }
-
-	log.Println(id)
 
 	e.ID = id
 	
