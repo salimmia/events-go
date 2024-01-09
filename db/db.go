@@ -4,11 +4,10 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
-	"os"
-	"strconv"
 
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	"github.com/salimmia/events-go/helpers"
 )
 
 var DB *sql.DB
@@ -22,15 +21,18 @@ func InitDB(){
 		return
 	}
 
-	host := os.Getenv("DB_HOST")
-   	port, _ := strconv.Atoi(os.Getenv("DB_PORT"))
-   	user := os.Getenv("DB_USER")
-   	dbname := os.Getenv("DB_NAME")
-	password := os.Getenv("DB_PASSWORD")
+	appConfig := *helpers.AppConfig
 
-	dsn := fmt.Sprintf("postgresql://%v:%v@%v:%v/%v?sslmode=disable", user, password, host, port, dbname)
+	driver := appConfig.DB_DRIVER
+	host := appConfig.DB_HOST
+   	port := appConfig.DB_PORT
+   	user := appConfig.DB_USER
+   	dbname := appConfig.DB_NAME
+	password := appConfig.DB_PASSWORD
 
-   	db, errSql := sql.Open("postgres", dsn)
+	dsn := fmt.Sprintf("%v://%v:%v@%v:%v/%v?sslmode=disable",driver, user, password, host, port, dbname)
+
+   	db, errSql := sql.Open(fmt.Sprintf("%v", driver), dsn)
 
    	if errSql != nil {
     	fmt.Println("There is an error while connecting to the database ", err)
