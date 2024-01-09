@@ -37,21 +37,44 @@ func (u *User) Save() error{
 	return nil
 }
 
-func GetUserByID(id int64) (*User, error){
-	var user User
+func GetAllUsers() (*[]User, error){
+	var users []User
 	sql := `
-		SELECT id, email, password FROM users WHERE email = $1;
+		SELECT id, email FROM users;
 	`
 
-	row, err := db.DB.Query(sql, id)
+	rows, err := db.DB.Query(sql)
 	if err != nil{
 		return nil, err
 	}
 
-	err = row.Scan(
+	for rows.Next(){
+		user := User{}
+		err = rows.Scan(
+			&user.ID,
+			&user.Email,
+		)
+		if err != nil{
+			return nil, err
+		}
+
+		users = append(users, user)
+	}
+
+	return &users, nil
+}
+
+func GetUserByID(id int64) (*User, error){
+	var user User
+	sql := `
+		SELECT id, email FROM users WHERE id = $1;
+	`
+
+	row := db.DB.QueryRow(sql, id)
+	
+	err := row.Scan(
 		&user.ID,
 		&user.Email,
-		&user.Password,
 	)
 	if err != nil{
 		return nil, err
