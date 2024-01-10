@@ -9,9 +9,9 @@ RUN go mod download
 
 COPY . .
 
-# RUN go build -o main ./cmd/web
+RUN go build -o main ./cmd/web
 
 EXPOSE 8080
 
-# CMD [ "./main" ]
-CMD [ "go", "run", "./cmd/web"]
+CMD [ "./main" ]
+# CMD [ "go", "run", "./cmd/web"]
